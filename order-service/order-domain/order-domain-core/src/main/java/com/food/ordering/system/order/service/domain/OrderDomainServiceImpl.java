@@ -7,6 +7,7 @@ import com.food.ordering.system.order.service.domain.event.OrderCancelledEvent;
 import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
 import com.food.ordering.system.order.service.domain.event.OrderPaidEvent;
 import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
+import com.food.ordering.system.order.service.domain.valueobject.AnnouncementText;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneId;
@@ -18,6 +19,7 @@ import java.util.List;
 public class OrderDomainServiceImpl implements OrderDomainService {
 
     private static final String UTC = "UTC";
+    private final OrderAnnouncementService announcementService = new OrderAnnouncementService();
 
     @Override
     public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant) {
@@ -26,6 +28,7 @@ public class OrderDomainServiceImpl implements OrderDomainService {
         order.validateOrder();
         order.initializeOrder();
         log.info("Order with id: {} has been initiated", order.getId().getValue());
+        logAnnouncement(order);
         return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
     }
 
@@ -34,6 +37,7 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public OrderPaidEvent payOrder(Order order) {
         order.pay();
         log.info("Order with id: {} has been paid", order.getId().getValue());
+        logAnnouncement(order);
         return new OrderPaidEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
     }
 
@@ -41,12 +45,14 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public void approveOrder(Order order) {
         order.approve();
         log.info("Order with id: {} has been approved", order.getId().getValue());
+        logAnnouncement(order);
     }
 
     @Override
     public OrderCancelledEvent cancelOrderPayment(Order order, List<String> failureMessages) {
         order.initCancel(failureMessages);
         log.info("Order payment with id: {} has been cancelled", order.getId().getValue());
+        logAnnouncement(order);
         return new OrderCancelledEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
     }
 
@@ -54,6 +60,7 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public void cancelOrder(Order order, List<String> failureMessages) {
         order.cancel(failureMessages);
         log.info("Order with id: {} has been cancelled", order.getId().getValue());
+        logAnnouncement(order);
     }
 
 
@@ -70,5 +77,10 @@ public class OrderDomainServiceImpl implements OrderDomainService {
                 currentProduct.updateWithConfirmedNameAndPrice(restaurantProduct.getName(), restaurantProduct.getPrice());
             }
         }));
+    }
+
+    private void logAnnouncement(Order order) {
+        AnnouncementText announcement = announcementService.generateAnnouncementText(order);
+        log.info("Station announcement: {}", announcement.getText());
     }
 }
