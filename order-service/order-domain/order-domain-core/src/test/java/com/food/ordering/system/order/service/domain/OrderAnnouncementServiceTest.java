@@ -90,4 +90,12 @@ public class OrderAnnouncementServiceTest {
         assertNotNull(announcementText);
         assertEquals("", announcementText.getText());
     }
+
+    @Test
+    public void testAnnouncementTextWithNullString() {
+        AnnouncementText announcementText = new AnnouncementText(null);
+        
+        assertNotNull(announcementText);
+        assertEquals("", announcementText.getText());
+    }
 }

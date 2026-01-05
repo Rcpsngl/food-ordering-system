@@ -6,7 +6,7 @@ public class AnnouncementText {
     private final String text;
 
     public AnnouncementText(String text) {
-        this.text = text;
+        this.text = text != null ? text : "";
     }
 
     public String getText() {
