@@ -13,8 +13,8 @@
 
     <repositories>
         <repository>
-            <id>sgk-releases</id>
-            <url>http://nexus.sgk.intra/repository/maven-sgk-releases/</url>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
 
